@@ -45,7 +45,6 @@ describe("/api/topics", () => {
     .get("/api/tocips")
     .expect(404)
     .then(({body}) => {
-      console.log(body)
       expect(body.msg).toBe("path not found")
     })
   })
@@ -58,13 +57,12 @@ describe("/api/articles/:article_id", () => {
     .expect(200)
     .then(({body}) => {
       const article = body.article;
-      console.log(article)
       expect(article.article_id).toBe(4);
       expect(article.author).toBe("jessjelly");
       expect(article.title).toBe("Making sense of Redux");
       expect(article.body).toBe("When I first started learning React, I remember reading lots of articles about the different technologies associated with it. In particular, this one article stood out. It mentions how confusing the ecosystem is, and how developers often feel they have to know ALL of the ecosystem before using React. And as someone who’s used React daily for the past 8 months or so, I can definitely say that I’m still barely scratching the surface in terms of understanding how the entire ecosystem works! But my time spent using React has given me some insight into when and why it might be appropriate to use another technology — Redux (a variant of the Flux architecture).");
       expect(article.topic).toBe("coding");
-      expect(article.created_at).toBe("2020-09-11 21:12:00");
+      expect(article.created_at).toBe("2020-09-11T20:12:00.000Z");
       expect(article.votes).toBe(0);
       expect(article.article_img_url).toBe("https://images.pexels.com/photos/4974912/pexels-photo-4974912.jpeg?w=700&h=700");
     });
@@ -82,8 +80,41 @@ describe("/api/articles/:article_id", () => {
     .get("/api/articles/banana")
     .expect(400)
     .then(({body}) => {
-      console.log(body)
       expect(body.msg).toBe("Bad Request")
+    })
+  })
+});
+
+describe("/api/articles?sort_by=created_at", () => {
+  test("GET 200: Responds with an array of article objects, each of which should have author, title, article_id, topic, created_at, votes, article_img_url and comment_count properties. Said array should be ordered by date in descending order", () => {
+    return request(app)
+    .get("/api/articles?sort_by=created_at")
+    .expect(200)
+    .then(({ body }) => {
+      const  articles  = body.articles;
+      expect(articles).toBeInstanceOf(Array)
+      expect(articles.length).toBeGreaterThan(0)
+
+      articles.forEach((article) => {
+        expect(typeof article.author).toBe("string")
+        expect(typeof article.title).toBe("string")
+        expect(typeof article.article_id).toBe("number")
+        expect(typeof article.topic).toBe("string")
+        expect(typeof article.created_at).toBe("string")
+        expect(typeof article.votes).toBe("number")
+        expect(typeof article.article_img_url).toBe("string")
+        expect(typeof article.comment_count).toBe("number")
+      })
+
+      expect(articles[0].created_at).toBe("2020-11-22T11:13:00.000Z")
+    })
+  })
+  test("GET 404: Responds with an error message when given a non-existent endpoint", () => {
+    return request(app)
+    .get("/api/articlse")
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("path not found")
     })
   })
 });
