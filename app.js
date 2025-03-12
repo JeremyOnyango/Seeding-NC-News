@@ -5,6 +5,7 @@ const getApi = require("./controllers/1-getApi.controller");
 const getTopics = require("./controllers/2-getTopics.controller");
 const getArticleById = require("./controllers/3-getArticleById.controller");
 const getArticles = require("./controllers/4-getArticles.controller")
+const getCommentsByArticleId = require("./controllers/5-getCommentsByArticleId.controller")
 
 const { handleServerErrors, handleCustomErrors, handlePsqlErrors } = require("./controllers/error.controllers");
 
@@ -15,6 +16,8 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById)
 
 app.get("/api/articles", getArticles)
+
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 
 app.all("*", (request,  response) => {response.status(404).send({msg: "path not found"})});
 
