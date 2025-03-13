@@ -65,6 +65,8 @@ describe("/api/articles/:article_id", () => {
     .then(({body}) => {
       const article = body.article;
 
+      expect(article).toBeInstanceOf(Object)
+
       expect(article).toMatchObject({
         article_id: 4, 
         author: "jessjelly", 
@@ -104,7 +106,7 @@ describe("/api/articles?sort_by=created_at", () => {
     .then(({ body }) => {
       const articles = body.articles;
       expect(articles).toBeInstanceOf(Array)
-      expect(articles.length).toBeGreaterThan(0)
+      expect(articles.length).toBe(37)
 
       articles.forEach((article) => {  
         expect(article).toMatchObject({
@@ -204,7 +206,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  test("POST 404: Responds with an error message when a body doesn't contain the right fields", () => {
+  test("POST 400: Responds with an error message when a body doesn't contain the right fields", () => {
     return request(app)
     .post("/api/articles/4/comments")
     .send({})
@@ -220,6 +222,56 @@ describe("/api/articles/:article_id/comments", () => {
     .send({
       username: "mronyango",
       body: 99999999999999999999999
+    })
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+})
+
+describe("/api/articles/:article_id", () => {
+  test("PATCH 200: Updates a given articles votes property and returns said article once updated", () => {
+    return request(app)
+    .patch("/api/articles/8")
+    .send({
+      inc_votes: 10
+    })
+    .expect(200)
+    .then(({body}) => {
+      console.log(body)
+      const article = body.article
+
+      expect(article).toBeInstanceOf(Object);
+
+          expect(article).toMatchObject({
+            article_id: 8, 
+            author: "cooljmessy",
+            title: "Express.js: A Server-Side JavaScript Framework", 
+            body: "You’re probably aware that JavaScript is the programming language most often used to add interactivity to the front end of a website, but its capabilities go far beyond that—entire sites can be built on JavaScript, extending it from the front to the back end, seamlessly. Express.js and Node.js gave JavaScript newfound back-end functionality—allowing developers to build software with JavaScript on the server side for the first time. Together, they make it possible to build an entire site with JavaScript: You can develop server-side applications with Node.js and then publish those Node.js apps as websites with Express. Because Node.js itself wasn’t intended to build websites, the Express framework is able to layer in built-in structure and functions needed to actually build a site. It’s a pretty lightweight framework that’s great for giving developers extra, built-in web application features and the Express API without overriding the already robust, feature-packed Node.js platform. In short, Express and Node are changing the way developers build websites.", 
+            topic: "coding", 
+            created_at: "2020-10-05T22:23:00.000Z", 
+            votes: 10, 
+            article_img_url: "https://images.pexels.com/photos/11035482/pexels-photo-11035482.jpeg?w=700&h=700"
+          })
+    });
+  });
+
+  test("PATCH 400: Responds with an error message when a body doesn't contain the right fields", () => {
+    return request(app)
+    .patch("/api/articles/8")
+    .send({})
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    });
+  });
+
+  test("PATCH 400: Responds with an error message when the value of a field is invalid", () => {
+    return request(app)
+    .patch("/api/articles/8")
+    .send({
+      inc_votes: "hi"
     })
     .expect(400)
     .then(({body}) => {
