@@ -9,6 +9,7 @@ const getCommentsByArticleId = require("./controllers/5-getCommentsByArticleId.c
 const postCommentForArticleId = require("./controllers/6-postCommentForArticleId.controller")
 const patchArticleVotesById = require("./controllers/7-patchArticleVotesById.controller")
 const deleteCommentById = require("./controllers/8-deleteCommentById.controller")
+const getUsers = require("./controllers/9-getUsers.controller")
 
 const { handleServerErrors, handleCustomErrors, handlePsqlErrors } = require("./controllers/error.controllers");
 
@@ -29,6 +30,8 @@ app.post("/api/articles/:article_id/comments", postCommentForArticleId)
 app.patch("/api/articles/:article_id", patchArticleVotesById)
 
 app.delete("/api/comments/:comment_id", deleteCommentById)
+
+app.get("/api/users", getUsers)
 
 app.all("*", (request,  response) => {response.status(404).send({msg: "path not found"})});
 
