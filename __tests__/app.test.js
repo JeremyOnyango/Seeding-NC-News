@@ -65,6 +65,8 @@ describe("/api/articles/:article_id", () => {
     .then(({body}) => {
       const article = body.article;
 
+      expect(article).toBeInstanceOf(Object)
+
       expect(article).toMatchObject({
         article_id: 4, 
         author: "jessjelly", 
@@ -82,7 +84,7 @@ describe("/api/articles/:article_id", () => {
     .get("/api/articles/1000")
     .expect(404)
     .then(({body}) => {
-      expect(body.msg).toBe("Not Found")
+      expect(body.msg).toBe("ID Not Found")
     })
   })
 
@@ -104,7 +106,7 @@ describe("/api/articles?sort_by=created_at", () => {
     .then(({ body }) => {
       const articles = body.articles;
       expect(articles).toBeInstanceOf(Array)
-      expect(articles.length).toBeGreaterThan(0)
+      expect(articles.length).toBe(37)
 
       articles.forEach((article) => {  
         expect(article).toMatchObject({
@@ -160,12 +162,25 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
     });
   });
 
+  test("GET 200: Responds with an empty array of comments for the given id", () => {
+    return request(app)
+    .get("/api/articles/37/comments?sort_by=created_at")
+    .expect(200)
+    .then(({body}) => {
+
+      const comments = body.comments;
+      expect(comments).toBeInstanceOf(Array);
+      expect(comments.length).toBe(0);
+
+    });
+  });
+
   test("GET 404: Responds with an error message when an id does not exist", () => {
     return request(app)
     .get("/api/articles/1000/comments?sort_by=created_at")
     .expect(404)
     .then(({body}) => {
-      expect(body.msg).toBe("Not Found")
+      expect(body.msg).toBe("ID Not Found")
     });
   });
 
@@ -177,6 +192,14 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
       expect(body.msg).toBe("Bad Request")
     })
   })
+  test("GET 400: Responds with an error message when an invalid sort_by field is provided", () => {
+    return request(app)
+      .get("/api/articles/4/comments?sort_by=invalid_field")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 })
 
 describe("/api/articles/:article_id/comments", () => {
@@ -204,10 +227,35 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  test("POST 404: Responds with an error message when a body doesn't contain the right fields", () => {
+  test("POST 201: Adds a comment to a given article and said comment should be returned having comment_id, votes, created_at, username, body and article_id as properties whilst ignoring any unnecessary properties in the body", () => {
     return request(app)
     .post("/api/articles/4/comments")
-    .send({})
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult",
+      title: "I hate science",
+      rating: 3
+    })
+    .expect(201)
+    .then(({body}) => {
+      const comment = body.comment
+
+      expect(comment).toBeInstanceOf(Object);
+
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: 4,
+          author: "grumpy19",
+          body: "Redux can be difficult",
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        })
+    });
+  });
+
+  test("POST 400: Responds with an error message when a body doesn't contain the right fields", () => {
+    return request(app)
+    .post("/api/articles/4/comments")
     .expect(400)
     .then(({body}) => {
       expect(body.msg).toBe("Bad Request")
@@ -226,4 +274,118 @@ describe("/api/articles/:article_id/comments", () => {
       expect(body.msg).toBe("Bad Request")
     })
   })
+
+  test("POST 400: Responds with an error message when an id is not valid", () => {
+    return request(app)
+    .post("/api/articles/banana/comments")
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult"
+    })
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+
+  test("POST 404: Responds with an error message when an id does not exist", () => {
+    return request(app)
+    .post("/api/articles/1000/comments")
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult"
+    })
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("ID Not Found")
+    });
+  });
+
+  test("POST 404: Responds with an error message when an username does not exist", () => {
+    return request(app)
+    .post("/api/articles/8/comments")
+    .send({
+      username: "MrOnyango",
+      body: "Redux can be difficult"
+    })
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("Username Not Found")
+    });
+  });
+
+})
+
+describe("/api/articles/:article_id", () => {
+  test("PATCH 200: Updates a given articles votes property and returns said article once updated", () => {
+    return request(app)
+    .patch("/api/articles/8")
+    .send({
+      inc_votes: 10
+    })
+    .expect(200)
+    .then(({body}) => {
+      const article = body.article
+
+      expect(article).toBeInstanceOf(Object);
+
+          expect(article).toMatchObject({
+            article_id: 8, 
+            author: "cooljmessy",
+            title: "Express.js: A Server-Side JavaScript Framework", 
+            body: "You’re probably aware that JavaScript is the programming language most often used to add interactivity to the front end of a website, but its capabilities go far beyond that—entire sites can be built on JavaScript, extending it from the front to the back end, seamlessly. Express.js and Node.js gave JavaScript newfound back-end functionality—allowing developers to build software with JavaScript on the server side for the first time. Together, they make it possible to build an entire site with JavaScript: You can develop server-side applications with Node.js and then publish those Node.js apps as websites with Express. Because Node.js itself wasn’t intended to build websites, the Express framework is able to layer in built-in structure and functions needed to actually build a site. It’s a pretty lightweight framework that’s great for giving developers extra, built-in web application features and the Express API without overriding the already robust, feature-packed Node.js platform. In short, Express and Node are changing the way developers build websites.", 
+            topic: "coding", 
+            created_at: "2020-10-05T22:23:00.000Z", 
+            votes: 10, 
+            article_img_url: "https://images.pexels.com/photos/11035482/pexels-photo-11035482.jpeg?w=700&h=700"
+          })
+    });
+  });
+
+  test("PATCH 400: Responds with an error message when a body doesn't contain the right fields", () => {
+    return request(app)
+    .patch("/api/articles/8")
+    .send({})
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    });
+  });
+
+  test("PATCH 400: Responds with an error message when the value of a field is invalid", () => {
+    return request(app)
+    .patch("/api/articles/8")
+    .send({
+      inc_votes: "hi"
+    })
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+
+  test("PATCH 400: Responds with an error message when an id is not valid", () => {
+    return request(app)
+    .patch("/api/articles/banana")
+    .send({
+      inc_votes: 1
+    })
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+
+  test("PATCH 404: Responds with an error message when an id does not exist", () => {
+    return request(app)
+    .patch("/api/articles/1000")
+    .send({
+      inc_votes: 1
+    })
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("ID Not Found")
+    });
+  });
+
 })
