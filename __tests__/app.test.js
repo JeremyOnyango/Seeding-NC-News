@@ -388,4 +388,28 @@ describe("/api/articles/:article_id", () => {
     });
   });
 
+describe("/api/comments/:comment_id", () => {
+  test("DELETE 204: Responds with a 204 message with no content once a comment is successfully deleted", () => {
+    return request(app)
+    .delete("/api/comments/4")
+    .expect(204)
+    })
+  })
+  test("DELETE 400: Responds with an error message when an id is not valid", () => {
+    return request(app)
+    .delete("/api/comments/banana")
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+
+  test("DELETE 404: Responds with an error message when an id does not exist or the comment has already been deleted", () => {
+    return request(app)
+    .delete("/api/comments/1000")
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("ID Not Found or Comment Already Deleted")
+    });
+  });
 })
