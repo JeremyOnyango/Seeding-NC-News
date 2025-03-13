@@ -143,7 +143,7 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
 
       const comments = body.comments;
       expect(comments).toBeInstanceOf(Array);
-      expect(comments.length).toBeGreaterThan(0);
+      expect(comments.length).toBe(9);
 
       comments.forEach((comment) => {
         expect(comment).toMatchObject({
@@ -172,6 +172,55 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
   test("GET 400: Responds with an error message when an id is not valid", () => {
     return request(app)
     .get("/api/articles/banana/comments?sort_by=created_at")
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+})
+
+describe("/api/articles/:article_id/comments", () => {
+  test("POST 201: Adds a comment to a given article and said comment should be returned having comment_id, votes, created_at, username, body and article_id as properties", () => {
+    return request(app)
+    .post("/api/articles/4/comments")
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult"
+    })
+    .expect(201)
+    .then(({body}) => {
+      const comment = body.comment
+
+      expect(comment).toBeInstanceOf(Object);
+
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: 4,
+          author: "grumpy19",
+          body: "Redux can be difficult",
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        })
+    });
+  });
+
+  test("POST 404: Responds with an error message when a body doesn't contain the right fields", () => {
+    return request(app)
+    .post("/api/articles/4/comments")
+    .send({})
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    });
+  });
+
+  test("POST 400: Responds with an error message when the value of a field is invalid", () => {
+    return request(app)
+    .post("/api/articles/4/comments")
+    .send({
+      username: "mronyango",
+      body: 99999999999999999999999
+    })
     .expect(400)
     .then(({body}) => {
       expect(body.msg).toBe("Bad Request")

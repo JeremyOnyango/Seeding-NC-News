@@ -56,5 +56,21 @@
         }
       ]
     }
+  },
+  "POST /api/articles/4/comments": {
+    "description": "posts a comment for a specific article based on the article id and returns said comment",
+    "queries": [],
+    "exampleResponse": {
+      "comment": [
+        {
+          "comment_id": 507,
+          "votes": 13,
+          "created_at": "2015-01-11T13:02:18.341Z",
+          "author": "MrOnyango",
+          "body": "Text from the article..",
+          "article_id": 9
+        }
+      ]
+    }
   }
 }
