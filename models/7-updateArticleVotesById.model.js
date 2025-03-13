@@ -11,9 +11,10 @@ function updateArticleVotesByID(article_id, inc_votes){
     WHERE article_id = $2
     RETURNING *;`
 
-    return db.query(queryStr, [inc_votes, article_id]).then(({rows}) => {
+    return db.query(queryStr, [inc_votes, article_id])
+    .then(({rows}) => {
         if(rows.length === 0){
-            return Promise.reject({status: 400, msg: "Not Found"})
+            return Promise.reject({status: 404, msg: "ID Not Found"})
         }
         return rows[0]
     })

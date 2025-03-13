@@ -84,7 +84,7 @@ describe("/api/articles/:article_id", () => {
     .get("/api/articles/1000")
     .expect(404)
     .then(({body}) => {
-      expect(body.msg).toBe("Not Found")
+      expect(body.msg).toBe("ID Not Found")
     })
   })
 
@@ -162,12 +162,25 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
     });
   });
 
+  test("GET 200: Responds with an empty array of comments for the given id", () => {
+    return request(app)
+    .get("/api/articles/37/comments?sort_by=created_at")
+    .expect(200)
+    .then(({body}) => {
+
+      const comments = body.comments;
+      expect(comments).toBeInstanceOf(Array);
+      expect(comments.length).toBe(0);
+
+    });
+  });
+
   test("GET 404: Responds with an error message when an id does not exist", () => {
     return request(app)
     .get("/api/articles/1000/comments?sort_by=created_at")
     .expect(404)
     .then(({body}) => {
-      expect(body.msg).toBe("Not Found")
+      expect(body.msg).toBe("ID Not Found")
     });
   });
 
@@ -179,6 +192,14 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
       expect(body.msg).toBe("Bad Request")
     })
   })
+  test("GET 400: Responds with an error message when an invalid sort_by field is provided", () => {
+    return request(app)
+      .get("/api/articles/4/comments?sort_by=invalid_field")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 })
 
 describe("/api/articles/:article_id/comments", () => {
@@ -206,10 +227,35 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
+  test("POST 201: Adds a comment to a given article and said comment should be returned having comment_id, votes, created_at, username, body and article_id as properties whilst ignoring any unnecessary properties in the body", () => {
+    return request(app)
+    .post("/api/articles/4/comments")
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult",
+      title: "I hate science",
+      rating: 3
+    })
+    .expect(201)
+    .then(({body}) => {
+      const comment = body.comment
+
+      expect(comment).toBeInstanceOf(Object);
+
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: 4,
+          author: "grumpy19",
+          body: "Redux can be difficult",
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        })
+    });
+  });
+
   test("POST 400: Responds with an error message when a body doesn't contain the right fields", () => {
     return request(app)
     .post("/api/articles/4/comments")
-    .send({})
     .expect(400)
     .then(({body}) => {
       expect(body.msg).toBe("Bad Request")
@@ -228,6 +274,46 @@ describe("/api/articles/:article_id/comments", () => {
       expect(body.msg).toBe("Bad Request")
     })
   })
+
+  test("POST 400: Responds with an error message when an id is not valid", () => {
+    return request(app)
+    .post("/api/articles/banana/comments")
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult"
+    })
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+
+  test("POST 404: Responds with an error message when an id does not exist", () => {
+    return request(app)
+    .post("/api/articles/1000/comments")
+    .send({
+      username: "grumpy19",
+      body: "Redux can be difficult"
+    })
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("ID Not Found")
+    });
+  });
+
+  test("POST 404: Responds with an error message when an username does not exist", () => {
+    return request(app)
+    .post("/api/articles/8/comments")
+    .send({
+      username: "MrOnyango",
+      body: "Redux can be difficult"
+    })
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("Username Not Found")
+    });
+  });
+
 })
 
 describe("/api/articles/:article_id", () => {
@@ -239,7 +325,6 @@ describe("/api/articles/:article_id", () => {
     })
     .expect(200)
     .then(({body}) => {
-      console.log(body)
       const article = body.article
 
       expect(article).toBeInstanceOf(Object);
@@ -278,4 +363,29 @@ describe("/api/articles/:article_id", () => {
       expect(body.msg).toBe("Bad Request")
     })
   })
+
+  test("PATCH 400: Responds with an error message when an id is not valid", () => {
+    return request(app)
+    .patch("/api/articles/banana")
+    .send({
+      inc_votes: 1
+    })
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad Request")
+    })
+  })
+
+  test("PATCH 404: Responds with an error message when an id does not exist", () => {
+    return request(app)
+    .patch("/api/articles/1000")
+    .send({
+      inc_votes: 1
+    })
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("ID Not Found")
+    });
+  });
+
 })
