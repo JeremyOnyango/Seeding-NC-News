@@ -87,5 +87,11 @@
         "article_img_url": "https://yabadabdo.com",
         "comment_count": 20
     }
+  },
+  "DELETE /api/comments/4": {
+    "description": "Deletes a comment based on the provided comment id.",
+    "queries": [],
+    "exampleResponse": {
+    }
   }
 }
