@@ -19,7 +19,7 @@ describe("/api", () => {
     return request(app)
       .get("/api")
       .expect(200)
-      .then(({ body: { endpoints } }) => {
+      .then(({ body: {endpoints} }) => {
         expect(endpoints).toEqual(endpointsJson);
       });
   });
@@ -30,8 +30,7 @@ describe("/api/topics", () => {
     return request(app)
     .get("/api/topics")
     .expect(200)
-    .then(({ body }) => {
-      const  topics  = body.topics;
+    .then(({ body: {topics} }) => {
       expect(topics).toBeInstanceOf(Array)
       expect(topics.length).toBe(3)
 
@@ -46,13 +45,13 @@ describe("/api/topics", () => {
   })
 });
 
-describe ("/api/tocips", () => {
+describe("/api/tocips", () => {
 test("GET 404: Responds with an error message when given a non-existent endpoint", () => {
     return request(app)
     .get("/api/tocips")
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("path not found")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("path not found")
     })
   })
 });
@@ -62,9 +61,7 @@ describe("/api/articles/:article_id", () => {
     return request(app)
     .get("/api/articles/4")
     .expect(200)
-    .then(({body}) => {
-      const article = body.article;
-
+    .then(( {body: {article} }) => {
       expect(article).toBeInstanceOf(Object)
 
       expect(article).toMatchObject({
@@ -83,8 +80,8 @@ describe("/api/articles/:article_id", () => {
     return request(app)
     .get("/api/articles/1000")
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("ID Not Found")
+    .then(({ body: {msg}}) => {
+      expect(msg).toBe("ID Not Found")
     })
   })
 
@@ -92,8 +89,8 @@ describe("/api/articles/:article_id", () => {
     return request(app)
     .get("/api/articles/banana")
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 });
@@ -103,8 +100,7 @@ describe("/api/articles?sort_by=created_at", () => {
     return request(app)
     .get("/api/articles?sort_by=created_at")
     .expect(200)
-    .then(({ body }) => {
-      const articles = body.articles;
+    .then(({ body: {articles} }) => {
       expect(articles).toBeInstanceOf(Array)
       expect(articles.length).toBe(37)
 
@@ -125,15 +121,6 @@ describe("/api/articles?sort_by=created_at", () => {
 
     })
   })
-
-  test("GET 404: Responds with an error message when given a non-existent endpoint", () => {
-    return request(app)
-    .get("/api/articlse?sort_by=created_at")
-    .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("path not found")
-    })
-  })
 });
 
 describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
@@ -141,9 +128,7 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
     return request(app)
     .get("/api/articles/4/comments?sort_by=created_at")
     .expect(200)
-    .then(({body}) => {
-
-      const comments = body.comments;
+    .then(({ body: {comments} }) => {
       expect(comments).toBeInstanceOf(Array);
       expect(comments.length).toBe(9);
 
@@ -166,9 +151,7 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
     return request(app)
     .get("/api/articles/37/comments?sort_by=created_at")
     .expect(200)
-    .then(({body}) => {
-
-      const comments = body.comments;
+    .then(({ body: {comments} }) => {
       expect(comments).toBeInstanceOf(Array);
       expect(comments.length).toBe(0);
 
@@ -179,8 +162,8 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
     return request(app)
     .get("/api/articles/1000/comments?sort_by=created_at")
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("ID Not Found")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("ID Not Found")
     });
   });
 
@@ -188,16 +171,16 @@ describe("/api/articles/:article_id/comments?sort_by=created_at", () => {
     return request(app)
     .get("/api/articles/banana/comments?sort_by=created_at")
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
   test("GET 400: Responds with an error message when an invalid sort_by field is provided", () => {
     return request(app)
       .get("/api/articles/4/comments?sort_by=invalid_field")
       .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+      .then(({ body: {msg} }) => {
+        expect(msg).toBe("Bad Request");
       });
   });
 })
@@ -211,9 +194,7 @@ describe("/api/articles/:article_id/comments", () => {
       body: "Redux can be difficult"
     })
     .expect(201)
-    .then(({body}) => {
-      const comment = body.comment
-
+    .then(({ body: {comment} }) => {
       expect(comment).toBeInstanceOf(Object);
 
         expect(comment).toMatchObject({
@@ -237,9 +218,7 @@ describe("/api/articles/:article_id/comments", () => {
       rating: 3
     })
     .expect(201)
-    .then(({body}) => {
-      const comment = body.comment
-
+    .then(({ body: {comment} }) => {
       expect(comment).toBeInstanceOf(Object);
 
         expect(comment).toMatchObject({
@@ -257,8 +236,8 @@ describe("/api/articles/:article_id/comments", () => {
     return request(app)
     .post("/api/articles/4/comments")
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     });
   });
 
@@ -270,8 +249,8 @@ describe("/api/articles/:article_id/comments", () => {
       body: 99999999999999999999999
     })
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 
@@ -283,8 +262,8 @@ describe("/api/articles/:article_id/comments", () => {
       body: "Redux can be difficult"
     })
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 
@@ -296,8 +275,8 @@ describe("/api/articles/:article_id/comments", () => {
       body: "Redux can be difficult"
     })
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("ID Not Found")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("ID Not Found")
     });
   });
 
@@ -309,8 +288,8 @@ describe("/api/articles/:article_id/comments", () => {
       body: "Redux can be difficult"
     })
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("Username Not Found")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Username Not Found")
     });
   });
 
@@ -324,9 +303,7 @@ describe("/api/articles/:article_id", () => {
       inc_votes: 10
     })
     .expect(200)
-    .then(({body}) => {
-      const article = body.article
-
+    .then(({ body: {article} }) => {
       expect(article).toBeInstanceOf(Object);
 
           expect(article).toMatchObject({
@@ -340,15 +317,15 @@ describe("/api/articles/:article_id", () => {
             article_img_url: "https://images.pexels.com/photos/11035482/pexels-photo-11035482.jpeg?w=700&h=700"
           })
     });
-  });
+  })
 
   test("PATCH 400: Responds with an error message when a body doesn't contain the right fields", () => {
     return request(app)
     .patch("/api/articles/8")
     .send({})
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     });
   });
 
@@ -359,8 +336,8 @@ describe("/api/articles/:article_id", () => {
       inc_votes: "hi"
     })
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 
@@ -371,8 +348,8 @@ describe("/api/articles/:article_id", () => {
       inc_votes: 1
     })
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 
@@ -383,10 +360,11 @@ describe("/api/articles/:article_id", () => {
       inc_votes: 1
     })
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("ID Not Found")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("ID Not Found")
     });
   });
+})
 
 describe("/api/comments/:comment_id", () => {
   test("DELETE 204: Responds with a 204 message with no content once a comment is successfully deleted", () => {
@@ -394,13 +372,13 @@ describe("/api/comments/:comment_id", () => {
     .delete("/api/comments/4")
     .expect(204)
     })
-  })
+
   test("DELETE 400: Responds with an error message when an id is not valid", () => {
     return request(app)
     .delete("/api/comments/banana")
     .expect(400)
-    .then(({body}) => {
-      expect(body.msg).toBe("Bad Request")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 
@@ -408,8 +386,8 @@ describe("/api/comments/:comment_id", () => {
     return request(app)
     .delete("/api/comments/1000")
     .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe("ID Not Found or Comment Already Deleted")
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("ID Not Found or Comment Already Deleted")
     });
   });
 })
@@ -419,8 +397,7 @@ describe("/api/users", () => {
     return request(app)
     .get("/api/users")
     .expect(200)
-    .then(({ body }) => {
-      const  users  = body.users;
+    .then(({ body: {users} }) => {
       expect(users).toBeInstanceOf(Array)
       expect(users.length).toBe(6)
 
@@ -432,6 +409,136 @@ describe("/api/users", () => {
         })
 
       })
+    })
+  })
+})
+
+describe("/api/articles?sort_by=votes&order=asc", () => {
+  test("GET 200: Responds with an array of article objects, each of which should have author, title, article_id, topic, created_at, votes, article_img_url and comment_count properties. Said array should be ordered by a specified column in ascending or descending order", () => {
+    return request(app)
+    .get("/api/articles?sort_by=article_id&order=asc")
+    .expect(200)
+    .then(({ body: {articles} }) => {
+      expect(articles).toBeInstanceOf(Array)
+      expect(articles.length).toBe(37)
+
+      articles.forEach((article) => {  
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+
+      expect(articles).toBeSorted("article_id", {ascending: true})
+
+    })
+  })
+
+  test("GET 400: Responds with an error message when given a invalid sort_by property", () => {
+    return request(app)
+    .get("/api/articles?sort_by=time")
+    .expect(400)
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
+    })
+  })
+
+  test("GET 400: Responds with an error message when given a invalid order value", () => {
+    return request(app)
+    .get("/api/articles?sort_by=created_at&order=up")
+    .expect(400)
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
+    })
+  })
+});
+
+describe("/api/articles?filter_by=topics&value", () => {
+  test("GET 200: Responds with an array of article objects, each of which should have author, title, article_id, topic, created_at, votes, article_img_url and comment_count properties. Said array should be filtered by the specified topic", () => {
+    return request(app)
+    .get("/api/articles?filter_by=topics&value=coding")
+    .expect(200)
+    .then(({ body: {articles} }) => {
+      expect(articles).toBeInstanceOf(Array)
+      expect(articles.length).toBe(12)
+
+      articles.forEach((article) => {  
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: "coding",
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })
+      })
+    })
+  })
+
+  test("GET 400: Responds with an error message when given a invalid filter_by property", () => {
+    return request(app)
+    .get("/api/articles?filter_by=space")
+    .expect(400)
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
+    })
+  })
+
+  test("GET 404: Responds with an error message when given a filter_by property value that doesn't exist", () => {
+    return request(app)
+    .get("/api/articles?filter_by=topics&value=mitch")
+    .expect(404)
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Topic Not Found")
+    })
+  })
+})
+
+describe("/api/articles/:article_id", () => {
+  test("GET 200: Responds with an individual article. Said article should have the properties of: author, title, article_id, body, topic, created_at, votes, article_img_url and comment_count", () => {
+    return request(app)
+    .get("/api/articles/4")
+    .expect(200)
+    .then(({ body :{article} }) => {
+      expect(article).toBeInstanceOf(Object)
+
+      expect(article).toMatchObject({
+        article_id: 4, 
+        author: "jessjelly", 
+        title: "Making sense of Redux", 
+        body: "When I first started learning React, I remember reading lots of articles about the different technologies associated with it. In particular, this one article stood out. It mentions how confusing the ecosystem is, and how developers often feel they have to know ALL of the ecosystem before using React. And as someone who’s used React daily for the past 8 months or so, I can definitely say that I’m still barely scratching the surface in terms of understanding how the entire ecosystem works! But my time spent using React has given me some insight into when and why it might be appropriate to use another technology — Redux (a variant of the Flux architecture).", 
+        topic: "coding", 
+        created_at: "2020-09-11T20:12:00.000Z", 
+        votes: 0, 
+        article_img_url: "https://images.pexels.com/photos/4974912/pexels-photo-4974912.jpeg?w=700&h=700",
+        comment_count: 9
+      })
+    });
+  });
+
+  test("GET 404: Responds with an error message when an id does not exist", () => {
+    return request(app)
+    .get("/api/articles/1000")
+    .expect(404)
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("ID Not Found")
+    })
+  })
+
+  test("GET 400: Responds with an error message when an id is not valid", () => {
+    return request(app)
+    .get("/api/articles/banana")
+    .expect(400)
+    .then(({ body: {msg} }) => {
+      expect(msg).toBe("Bad Request")
     })
   })
 });
