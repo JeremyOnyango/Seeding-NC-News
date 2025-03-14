@@ -1,24 +1,55 @@
 const db = require("../db/connection");
-const format = require("pg-format");
 
-function fetchArticles(sort_by) {
-    const allowedParams = ["created_at"];
+function fetchArticles(sort_by = "created_at", order = "desc", filter_by, value) {
     const queryParams = [];
 
-    let queryStr = 'SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::INT AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ';
+    const allowedSortByParams = ["created_at", "votes", "article_id", "author", "title", "topic", "comment_count"];
+    
+    const allowedOrders = ["asc", "desc", "ASC", "DESC"];
 
-    if(!allowedParams.includes(sort_by)){
-        return Promise.reject({status: 404, msg: "Invalid Input"})
+    if(!allowedSortByParams.includes(sort_by) || !allowedOrders.includes(order)){
+        return Promise.reject({status: 400, msg: "Bad Request"})
     };
 
-        queryParams.push(sort_by);
-        queryStr += format('ORDER BY articles.%I DESC', queryParams)
+    const allowedFilters = ["topics"];
+    
+    if(filter_by && !allowedFilters.includes(filter_by)){
+        return Promise.reject({status: 400, msg: "Bad Request"})
+    };
 
-        
-        return db.query(queryStr).then (({rows}) => {
-        return rows
+        let queryStr = 
+        `SELECT articles.*, 
+        COUNT(comments.article_id)::INT 
+        AS comment_count 
+        FROM articles 
+        LEFT JOIN comments 
+        ON articles.article_id = comments.article_id `;
+    
+    if(filter_by && value){
+        const topicsCheckQuery = `SELECT * FROM topics WHERE slug = $1`;
+
+        return db.query(topicsCheckQuery, [value])
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Topic Not Found" });
+            }
+            queryParams.push(value)
+            queryStr += `WHERE articles.topic = $1 `
         })
+        .then(() =>{
+            queryStr += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+            return db.query(queryStr, queryParams)
+            .then(({rows}) => {
+                return rows
+            })
+        })
+    }
+
+    queryStr += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+    return db.query(queryStr, queryParams)
+    .then(({rows}) => {
+        return rows
+    })
 }
 
-
-module.exports = fetchArticles
+module.exports = fetchArticles;
