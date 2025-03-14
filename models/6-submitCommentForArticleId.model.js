@@ -1,4 +1,3 @@
-const { response } = require("express");
 const db = require("../db/connection");
 
 function submitCommentForArticleId(article_id, username, body){

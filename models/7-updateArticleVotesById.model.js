@@ -1,4 +1,3 @@
-const { response } = require("express");
 const db = require("../db/connection");
 
 function updateArticleVotesByID(article_id, inc_votes){
@@ -6,7 +5,8 @@ function updateArticleVotesByID(article_id, inc_votes){
         return Promise.reject({status: 400, msg: "Bad Request"})
     }
 
-    const queryStr = `UPDATE articles
+    const queryStr = 
+    `UPDATE articles
     SET votes = votes + $1
     WHERE article_id = $2
     RETURNING *;`

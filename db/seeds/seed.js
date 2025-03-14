@@ -108,8 +108,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
 
       const articleId = idLookup[comment.article_title]
 
-      console.log(articleId)
-
       return [articleId, comment.body, comment.votes, comment.author, convertedComment.created_at]
     });
 
