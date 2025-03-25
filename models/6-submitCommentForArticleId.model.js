@@ -6,7 +6,7 @@ function submitCommentForArticleId(article_id, username, body){
         return Promise.reject({status: 400, msg: "Bad Request"})
     }
 
-    if(typeof username === "number" || typeof body === "number"){
+    if(typeof body === "number"){
         return Promise.reject({status: 400, msg: "Bad Request"})
     }
 
