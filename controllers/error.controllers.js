@@ -16,6 +16,7 @@ function handlePsqlErrors(error, request, response, next){
 
 function handleServerErrors(error, request, response, next){
     response.status(500).send({msg: "Internal Server Error"})
+    console.log(error)
 }
 
 module.exports = { handleCustomErrors, handleServerErrors, handlePsqlErrors}
